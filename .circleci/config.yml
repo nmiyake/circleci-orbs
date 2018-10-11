@@ -7,15 +7,15 @@ workflows:
   orb-verify-publish:
     jobs:
       - orb-tools/publish:
-        name: go-orb
-        orb-path: ./src/go/orb.yml
-        orb-ref: palantir/go@dev:${CIRCLE_BRANCH}
-        publish-token-variable: "$CIRCLECI_DEV_API_TOKEN"
-        validate: true
+          name: go-orb
+          orb-path: ./src/go/orb.yml
+          orb-ref: palantir/go@dev:${CIRCLE_BRANCH}
+          publish-token-variable: "$CIRCLECI_DEV_API_TOKEN"
+          validate: true
 
       - orb-tools/publish:
-        name: godel-orb
-        orb-path: ./src/godel/orb.yml
-        orb-ref: palantir/godel@dev:${CIRCLE_BRANCH}
-        publish-token-variable: "$CIRCLECI_DEV_API_TOKEN"
-        validate: true
+          name: godel-orb
+          orb-path: ./src/godel/orb.yml
+          orb-ref: palantir/godel@dev:${CIRCLE_BRANCH}
+          publish-token-variable: "$CIRCLECI_DEV_API_TOKEN"
+          validate: true
