@@ -2,31 +2,20 @@ version: 2.1
 
 orbs:
   orb-tools: circleci/orb-tools@volatile
+
 workflows:
   orb-verify-publish:
     jobs:
-      - orb-tools/validate-orb:
-          name: validate-go-orb
-          orb-path: ./src/go/orb.yml
-          workspace-path: ./workspace/
-      - orb-tools/publish-dev-orb:
-          name: publish-go-orb
-          namespace: palantir
-          orb-name: go
-          label: ${CIRCLE_BRANCH}
-          dev-token-variable: "$CIRCLECI_DEV_API_TOKEN"
-          workspace-path: ./workspace/
-          requires: [validate-go-orb]
+      - orb-tools/publish:
+        name: go-orb
+        orb-path: ./src/go/orb.yml
+        orb-ref: palantir/go@dev:${CIRCLE_BRANCH}
+        publish-token-variable: "$CIRCLECI_DEV_API_TOKEN"
+        validate: true
 
-      - orb-tools/validate-orb:
-          name: validate-godel-orb
-          orb-path: ./src/godel/orb.yml
-          workspace-path: ./workspace/
-      - orb-tools/publish-dev-orb:
-          name: publish-godel-orb
-          namespace: palantir
-          orb-name: godel
-          label: ${CIRCLE_BRANCH}
-          dev-token-variable: "$CIRCLECI_DEV_API_TOKEN"
-          workspace-path: ./workspace/
-          requires: [validate-godel-orb]
+      - orb-tools/publish:
+        name: godel-orb
+        orb-path: ./src/godel/orb.yml
+        orb-ref: palantir/godel@dev:${CIRCLE_BRANCH}
+        publish-token-variable: "$CIRCLECI_DEV_API_TOKEN"
+        validate: true
