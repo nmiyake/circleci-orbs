@@ -1,0 +1,107 @@
+version: 2.1
+
+orbs:
+  go: palantir/go@dev:0.0.1
+
+commands:
+  setup:
+    steps:
+      - restore_cache:
+          keys:
+            - godel-cache-{{ checksum "godelw" }}-v1
+      - run: ./godelw version
+      - save_cache:
+          key: godel-cache-{{ checksum "godelw" }}-v1
+          paths:
+            - ~/.godel
+
+jobs:
+  verify:
+    parameters:
+      owner:
+        type: string
+      repo:
+        type: string
+      include-tests:
+        type: boolean
+        default: false
+    executor:
+      name: go/darwin-linux-no-cgo
+      owner: << parameters.owner >>
+      repo: << parameters.repo >>
+    steps:
+      - go/setup
+      - setup
+      - when:
+          condition: << parameters.include-tests >>
+          steps:
+          - run: ./godelw verify --apply=false
+      - unless:
+          condition: << parameters.include-tests >>
+          steps:
+          - run: ./godelw verify --apply=false --skip-test
+
+  test:
+    parameters:
+      owner:
+        type: string
+      repo:
+        type: string
+    executor:
+      name: go/darwin-linux-no-cgo
+      owner: << parameters.owner >>
+      repo: << parameters.repo >>
+    steps:
+      - go/setup
+      - setup
+      - run: echo 'export TESTS_DIR=/tmp/test-results' >> $BASH_ENV
+      - run: mkdir -p "${TESTS_DIR}"
+      - run: ./godelw test --junit-output="$TESTS_DIR/$CIRCLE_PROJECT_REPONAME-tests.xml"
+      - store_test_results:
+          path: /tmp/test-results
+      - store_artifacts:
+          path: /tmp/test-results
+          destination: test-results
+
+  dist:
+    parameters:
+      owner:
+        type: string
+      repo:
+        type: string
+    executor:
+      name: go/darwin-linux-no-cgo
+      owner: << parameters.owner >>
+      repo: << parameters.repo >>
+    steps:
+      - go/setup
+      - setup
+      - run: ./godelw dist
+      - save_cache:
+          key: dist-{{ .Environment.CIRCLE_WORKFLOW_ID }}-{{ .Environment.CIRCLE_SHA1 }}-v1
+          paths:
+            - out
+
+  bintray-publish:
+    parameters:
+      owner:
+        type: string
+      repo:
+        type: string
+      product:
+        type: string
+    executor:
+      name: go/darwin-linux-no-cgo
+      owner: << parameters.owner >>
+      repo: << parameters.repo >>
+    steps:
+      - go/setup
+      - setup
+      - restore_cache:
+          keys:
+            - dist-{{ .Environment.CIRCLE_WORKFLOW_ID }}-{{ .Environment.CIRCLE_SHA1 }}-v1
+      # gödel cache only works if cached outputs are newer than source that generates it. CircleCI restore_cache restores
+      # the cache with the original modification dates, but the source's modification date in CI is the time of checkout.
+      # Manually touch all of the cache output to mark it as being generated after source was checked out.
+      - run: find out -exec touch {} \;
+      - run: ./godelw publish bintray --url https://api.bintray.com --subject palantir --repository releases --product << parameters.product >> --username "$BINTRAY_USERNAME" --password "$BINTRAY_PASSWORD" --publish --downloads-list

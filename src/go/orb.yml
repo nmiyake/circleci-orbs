@@ -1,0 +1,22 @@
+version: 2.1
+
+executors:
+  darwin-linux-no-cgo:
+    parameters:
+      owner:
+        type: string
+      repo:
+        type: string
+      version:
+        type: string
+        default: 1.11.1-t135
+    docker:
+    - image: nmiyake/go:go-darwin-linux-no-cgo-<< parameters.version >>
+      environment:
+        CGO_ENABLED: 0
+    working_directory: /go/src/github.com/<< parameters.owner >>/<< parameters.repo >>
+commands:
+  setup:
+    steps:
+    - checkout
+    - run: go version
