@@ -20,8 +20,10 @@ jobs:
     parameters:
       owner:
         type: string
+        default: $CIRCLE_PROJECT_USERNAME
       repo:
         type: string
+        default: $CIRCLE_PROJECT_REPONAME
       include-tests:
         type: boolean
         default: false
@@ -45,8 +47,10 @@ jobs:
     parameters:
       owner:
         type: string
+        default: $CIRCLE_PROJECT_USERNAME
       repo:
         type: string
+        default: $CIRCLE_PROJECT_REPONAME
     executor:
       name: go/darwin-linux-no-cgo
       owner: << parameters.owner >>
@@ -67,8 +71,10 @@ jobs:
     parameters:
       owner:
         type: string
+        default: $CIRCLE_PROJECT_USERNAME
       repo:
         type: string
+        default: $CIRCLE_PROJECT_REPONAME
     executor:
       name: go/darwin-linux-no-cgo
       owner: << parameters.owner >>
@@ -86,8 +92,10 @@ jobs:
     parameters:
       owner:
         type: string
+        default: $CIRCLE_PROJECT_USERNAME
       repo:
         type: string
+        default: $CIRCLE_PROJECT_REPONAME
       product:
         type: string
     executor:
