@@ -5,8 +5,10 @@ executors:
     parameters:
       owner:
         type: string
+        default: $CIRCLE_PROJECT_USERNAME
       repo:
         type: string
+        default: $CIRCLE_PROJECT_REPONAME
       version:
         type: string
         default: 1.11.1-t135
